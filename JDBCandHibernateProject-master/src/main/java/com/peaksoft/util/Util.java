@@ -1,6 +1,7 @@
 package com.peaksoft.util;
 
-import com.peaksoft.dao.UserDaoJdbcImpl;
+import com.peaksoft.dao.UserDaoHibernateImpl;
+import com.peaksoft.model.User;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AnnotationConfiguration;
 
@@ -10,8 +11,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
+
 public class Util {
-    //     реализуйте настройку соеденения с БД
+//         реализуйте настройку соеденения с БД
     private static String URL = "jdbc:postgresql://localhost:5432/postgres";
     private static String USERNAME = "postgres";
     private static String PASSWORD = "postgres";
@@ -26,22 +28,26 @@ public class Util {
         }
         return connection;
     }
-    Properties prop= new Properties();
+    private static SessionFactory sessionFactory;
+    static {
+        try{
+            Properties prop = new Properties();
+            prop.setProperty("hibernate.connection.url", "jdbc:mysql://<your-host>:<your-port>/<your-dbname>");
+            prop.setProperty("hibernate.connection.username", "<your-user>");
+            prop.setProperty("hibernate.connection.password", "<your-password>");
+            prop.setProperty("dialect", "org.hibernate.dialect.MySQLDialect");
 
-        prop.setProperty("hibernate.connection.url", "jdbc:mysql://<your-host>:<your-port>/<your-dbname>");
+            sessionFactory = new AnnotationConfiguration()
+                    .addPackage("com.concrete.persistance")
+                    .addProperties(prop)
+                    .addAnnotatedClass(User.class)
+                    .buildSessionFactory();
+        }catch (Throwable ex){
+            throw new ExceptionInInitializerError(ex);
+        }
+    }
 
-    //You can use any database you want, I had it configured for Postgres
-        prop.setProperty("dialect", "org.hibernate.dialect.PostgresSQL");
 
-        prop.setProperty("hibernate.connection.username", "<your-user>");
-        prop.setProperty("hibernate.connection.password", "<your-password>");
-        prop.setProperty("hibernate.connection.driver_class", "org.postgresql.Driver");
-        prop.setProperty("show_sql", true); //If you wish to see the generated sql query
-
-    SessionFactory sessionFactory = new Configuration().addProperties(prop).buildSessionFactory();
-    Session session = sessionFactory.openSession();
-    session.beginTransaction();
-}
 
 //    private static SessionFactory sessionFactory = buildSessionFactory();
 //    private static SessionFactory buildSessionFactory() {
@@ -54,12 +60,12 @@ public class Util {
 //            throw e;
 //        }
 //    }
-//
-//    public static SessionFactory getSessionFactory() {
-//        return sessionFactory;
-//    }
-//
-//    public void close() {
-//        sessionFactory.close();
-//    }
-//}close
+
+    public static SessionFactory getSessionFactory() {
+        return sessionFactory;
+    }
+
+    public void close() {
+        sessionFactory.close();
+    }
+}
