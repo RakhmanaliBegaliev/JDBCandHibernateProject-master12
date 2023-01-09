@@ -1,23 +1,33 @@
 package com.peaksoft;
 
 
-import com.peaksoft.dao.UserDao;
-import com.peaksoft.dao.UserDaoJdbcImpl;
-import com.peaksoft.model.User;
 import com.peaksoft.util.Util;
-
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
 
 public class App {
     public static void main(String[] args) {
-        UserDao  u= new UserDaoJdbcImpl();
-        u.saveUser("Bek","Isman",(byte) 15);
-        System.out.println(u.getAllUsers());
-        // реализуйте алгоритм здесь
-    }
 
+        // реализуйте алгоритм здесь
+        createUsersTable();
+    }
+    public static void createUsersTable() {
+        String SQL = "CREATE TABLE IF NOT EXIST users(" +
+                "id BIGSERIAL PRIMARY KEY," +
+                "name VARCHAR(50)," +
+                "last_name VARCHAR (50)," +
+                "age SMALLINT);";
+        Session session = Util.createsessionFactory().openSession();
+        try {
+            session.beginTransaction();
+            session.createSQLQuery(SQL).executeUpdate();
+            session.getTransaction().commit();
+        } catch (HibernateException e) {
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
+    }
 
 
 }

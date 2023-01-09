@@ -1,71 +1,51 @@
 package com.peaksoft.util;
 
-import com.peaksoft.dao.UserDaoHibernateImpl;
 import com.peaksoft.model.User;
 import org.hibernate.SessionFactory;
-import org.hibernate.cfg.AnnotationConfiguration;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.cfg.Environment;
 
-import javax.security.auth.login.Configuration;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import java.util.Properties;
 
 
 public class Util {
-//         реализуйте настройку соеденения с БД
-    private static String URL = "jdbc:postgresql://localhost:5432/postgres";
-    private static String USERNAME = "postgres";
-    private static String PASSWORD = "postgres";
-
-    public static Connection connection() {
-        Connection connection = null;
-        try {
-            connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
-            System.out.println("Successfully connected");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return connection;
-    }
-    private static SessionFactory sessionFactory;
-    static {
-        try{
-            Properties prop = new Properties();
-            prop.setProperty("hibernate.connection.url", "jdbc:mysql://<your-host>:<your-port>/<your-dbname>");
-            prop.setProperty("hibernate.connection.username", "<your-user>");
-            prop.setProperty("hibernate.connection.password", "<your-password>");
-            prop.setProperty("dialect", "org.hibernate.dialect.MySQLDialect");
-
-            sessionFactory = new AnnotationConfiguration()
-                    .addPackage("com.concrete.persistance")
-                    .addProperties(prop)
-                    .addAnnotatedClass(User.class)
-                    .buildSessionFactory();
-        }catch (Throwable ex){
-            throw new ExceptionInInitializerError(ex);
-        }
-    }
-
-
-
-//    private static SessionFactory sessionFactory = buildSessionFactory();
-//    private static SessionFactory buildSessionFactory() {
-//        Configuration configuration = null;
+    //         реализуйте настройку соеденения с БД
+//    private static String URL = "jdbc:postgresql://localhost:5432/postgres";
+//    private static String USERNAME = "postgres";
+//    private static String PASSWORD = "postgres";
+//
+//    public static Connection connection() {
+//        Connection connection = null;
 //        try {
-//            return new org.hibernate.cfg.Configuration().configure("hibernate.cfg.xml")
-//                    .addAnnotatedClass(UserDaoHibernateImpl.class)
-//                    .buildSessionFactory();
-//        } catch (Exception e) {
-//            throw e;
+//            connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+//            System.out.println("Successfully connected");
+//        } catch (SQLException e) {
+//            e.printStackTrace();
 //        }
+//        return connection;
 //    }
 
-    public static SessionFactory getSessionFactory() {
-        return sessionFactory;
+    private static final SessionFactory sessionFactory = createsessionFactory();
+
+    public static SessionFactory createsessionFactory() {
+        Properties properties = new Properties();
+        properties.put(Environment.DRIVER, "org.postgresql.Driver");
+        properties.put(Environment.URL, "jdbc:postgresql://localhost:5433/postgres");
+        properties.put(Environment.USER, "postgres");
+        properties.put(Environment.PASS, "postgres");
+        properties.put(Environment.HBM2DDL_AUTO, "update");
+        properties.put(Environment.DIALECT, "org.hibernate.dialect.PostgreSQLDialect");
+        properties.put(Environment.SHOW_SQL, "true");
+
+        Configuration configuration = new Configuration();
+        configuration.addProperties(properties);
+        configuration.addAnnotatedClass(User.class);
+        return configuration.buildSessionFactory();
     }
 
-    public void close() {
-        sessionFactory.close();
+    public static EntityManagerFactory createEntityManagerFactory() {
+        return Persistence.createEntityManagerFactory("peaksoft");
     }
 }

@@ -2,7 +2,6 @@ package com.peaksoft.service;
 
 import com.peaksoft.dao.UserDao;
 import com.peaksoft.dao.UserDaoHibernateImpl;
-import com.peaksoft.dao.UserDaoJdbcImpl;
 import com.peaksoft.model.User;
 
 import java.util.List;
